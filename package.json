@@ -1,0 +1,26 @@
+{
+  "name": "bamazon-mysql",
+  "version": "1.0.0",
+  "description": "UCF Coding Bootcamp Week 12 Homework (using MySQL &amp; node.js to create a CLI Amazon like app for customers to view inventory &amp; purchase)",
+  "main": "bamazonCustomer.js",
+  "dependencies": {
+    "cli-table": "^0.3.1",
+    "cli-table2": "^0.2.0",
+    "inquirer": "^5.2.0",
+    "mysql": "^2.15.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ksouders92/Bamazon-MySQL.git"
+  },
+  "author": "Kathleen Souders",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ksouders92/Bamazon-MySQL/issues"
+  },
+  "homepage": "https://github.com/ksouders92/Bamazon-MySQL#readme"
+}
