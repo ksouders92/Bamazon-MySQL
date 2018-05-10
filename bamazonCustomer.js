@@ -30,15 +30,30 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     console.log("Connection successful!");
+    // once connection is successful, the function below is called
     makeTable();
 })
 
 var makeTable = function () {
     connection.query("SELECT * FROM products", function (err, res) {
+        // Creates a new table for the CLI-table view
+        var table = new Table({
+            head: ["Item ID", "Product Name", "Department", "Price $", "Quantity"],
+           // colWidths: [150, 150]
+        });
+
+        // Displays all the items for sale
+        console.log("ITEMS AVAILABLE FOR PURCHASE: ");
+        
         // loops through of the data FROM products and consolelogs the response
         for (var i = 0; i < res.length; i++) {
-            console.log(res[i].item_id + " || " + res[i].product_name + " || " + res[i].department_name + " || " + res[i].price$ + " || " + res[i].stock_quantity + "\n");
+            table.push([res[i].item_id, res[i].product_name, res[i].department_name,
+            res[i].price$, res[i].stock_quantity]);
         }
+
+        // Logs the table with items in for purchase
+        console.log(table.toString());
+        // Calls promptCustomer function
         promptCustomer(res);
 
     })
@@ -49,7 +64,7 @@ var promptCustomer = function (res) {
     inquirer.prompt([{
         type: "input",
         name: "choice",
-        message: "What is the name of the product you would like to purchase? [Quit with 'Q']"
+        message: "What is the item ID of the product you would like to purchase? [Quit with 'Q']"
     }]).then(function (answer) {
         var correct = false;
         // Quit with 'Q'
@@ -59,15 +74,15 @@ var promptCustomer = function (res) {
         // loops through query
         for (var i = 0; i < res.length; i++) {
             // if the query is equal to a product name it'll set correct to true
-            if (res[i].product_name == answer.choice) {
+            if (res[i].item_id == answer.choice) {
                 correct = true;
-                var product_name = answer.choice;
-                var item_id = i;
+                var selected_product = answer.choice;
+                var id = i;
                 //Create a second inquirer prompt to see how many they would like to buy
                 inquirer.prompt({
                     type: "input",
                     name: "quant",
-                    message: "How many would you like to purchase? [Quit with 'Q']",
+                    message: "How many would you like to purchase?",
                     // user validation checks it is a number
                     validate: function (value) {
 
@@ -79,13 +94,16 @@ var promptCustomer = function (res) {
                     }
                 }).then(function (answer) {
                     // if number is not larger than current stock quantity it will purchase that product
-                    if ((res[item_id].stock_quantity = answer.quant) > 0) {
+                    if ((res[id].stock_quantity - answer.quant) > 0) {
                         // Updates the stock quantity
-                        connection.query("UPDATE products SET stock_quantity='" +
-                            (res[item_id].stock_quantity - answer.quant) + "' WHERE product_name='"
-                            + product_name + "'", function (err, res2) {
+                        connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
+                        [res[id].stock_quantity, res[id].item_id],
+                        //    "UPDATE products SET stock_quantity='" +
+                        //     (res[id].stock_quantity - answer.quant) + "' WHERE product_name='"
+                        //     + selected_product + "'", 
+                            function (err, res2) {
                                 console.log("Product purchased!");
-                                makeTable();
+                              makeTable();
                             })
                         // if quantity is not available or quantity input is not an input, it will let the user know input was not valid
                     } else {
@@ -102,5 +120,8 @@ var promptCustomer = function (res) {
     }
     )
 }
+
+
+
 
 
